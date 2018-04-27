@@ -8,9 +8,11 @@ void init_palette(void);
 void set_palette(int start, int end, unsigned char *rgb);
 void boxfill8(unsigned char *vram, int xsize, unsigned char c, int x0, int y0,
               int x1, int y1);
+// TODO: vram, xsize, ysize をもつ構造体を用意する
 void init_screen(char *vram, int xsize, int ysize);
-void putfont8(char *vram, int xsize, int ysize, int x, int y, char c,
-              char *font);
+void putfont8(char *vram, int xsize, int x, int y, char c, char *font);
+void putfonts8_asc(char *vram, int xsize, int x, int y, char c,
+                   unsigned char *s);
 
 #define COL8_000000 0
 #define COL8_FF0000 1
@@ -41,18 +43,12 @@ void HariMain(void) {
 
   init_palette(); // パレットを設定
   init_screen(binfo->vram, binfo->scrnx, binfo->scrny);
-  putfont8(binfo->vram, binfo->scrnx, binfo->scrny, 8, 8, COL8_FFFFFF,
-           hankaku + 'H' * 16);
-  putfont8(binfo->vram, binfo->scrnx, binfo->scrny, 16, 8, COL8_FFFFFF,
-           hankaku + 'E' * 16);
-  putfont8(binfo->vram, binfo->scrnx, binfo->scrny, 24, 8, COL8_FFFFFF,
-           hankaku + 'L' * 16);
-  putfont8(binfo->vram, binfo->scrnx, binfo->scrny, 32, 8, COL8_FFFFFF,
-           hankaku + 'L' * 16);
-  putfont8(binfo->vram, binfo->scrnx, binfo->scrny, 40, 8, COL8_FFFFFF,
-           hankaku + 'O' * 16);
-  putfont8(binfo->vram, binfo->scrnx, binfo->scrny, 48, 8, COL8_FFFFFF,
-           hankaku + 'W' * 16);
+  putfonts8_asc(binfo->vram, binfo->scrnx, 8, 8, COL8_FFFFFF,
+                (unsigned char *)"ABC 123");
+  putfonts8_asc(binfo->vram, binfo->scrnx, 31, 31, COL8_000000,
+                (unsigned char *)"Haribote OS.");
+  putfonts8_asc(binfo->vram, binfo->scrnx, 30, 30, COL8_FFFFFF,
+                (unsigned char *)"Haribote OS.");
 
   for (;;) {
     io_hlt();
@@ -142,8 +138,7 @@ void init_screen(char *vram, int xsize, int ysize) {
   return;
 }
 
-void putfont8(char *vram, int xsize, int ysize, int x, int y, char c,
-              char *font) {
+void putfont8(char *vram, int xsize, int x, int y, char c, char *font) {
   int i;
   char *p, d /* data */;
   for (i = 0; i < 16; i++) {
@@ -165,6 +160,17 @@ void putfont8(char *vram, int xsize, int ysize, int x, int y, char c,
       p[6] = c;
     if ((d & 0x01) != 0)
       p[7] = c;
+  }
+  return;
+}
+
+void putfonts8_asc(char *vram, int xsize, int x, int y, char c,
+                   unsigned char *s) {
+  extern char hankaku[4096];
+  // C言語では文字列は "0x00" で終わることになっている
+  for (; *s != 0x00; s++) {
+    putfont8(vram, xsize, x, y, c, hankaku + *s * 16);
+    x += 8;
   }
   return;
 }
