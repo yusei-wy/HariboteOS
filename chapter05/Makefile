@@ -10,8 +10,14 @@ asmhead.bin : asmhead.asm Makefile
 nasmfunc.o : nasmfunc.asm Makefile		# nasmfunc.asm のバイナリファイル生成
 	nasm -g -f elf nasmfunc.asm -o nasmfunc.o
 
-bootpack.hrb : bootpack.c har.ld nasmfunc.o Makefile		# Cファイルをリンカスクリプトを用いてコンパイル
-	gcc -march=i486 -m32 -nostdlib -T har.ld bootpack.c nasmfunc.o -o bootpack.hrb
+hankaku.c : makefont.c
+	gcc -Wall -o makefont makefont.o && ./makefont
+
+hankaku.o : hankaku.c hankaku.txt Makefile
+	gcc -c -m32 -o hankaku.o hankaku.c
+
+bootpack.hrb : bootpack.c har.ld hankaku.o nasmfunc.o Makefile		# Cファイルをリンカスクリプトを用いてコンパイル
+	gcc -march=i486 -m32 -nostdlib -T har.ld bootpack.c hankaku.o nasmfunc.o -o bootpack.hrb
 
 haribote.sys : asmhead.bin bootpack.hrb Makefile
 	cat asmhead.bin bootpack.hrb > haribote.sys

@@ -37,13 +37,22 @@ struct BOOTINFO {
 
 void HariMain(void) {
   struct BOOTINFO *binfo = (struct BOOTINFO *)0xff0;
-  static char font_A[16] = {0x00, 0x18, 0x18, 0x18, 0x18, 0x24, 0x24, 0x24,
-                            0x24, 0x7e, 0x42, 0x42, 0x42, 0xe7, 0x00, 0x00};
+  extern char hankaku[4096];
 
   init_palette(); // パレットを設定
   init_screen(binfo->vram, binfo->scrnx, binfo->scrny);
-  putfont8(binfo->vram, binfo->scrnx, binfo->scrny, 10, 10, COL8_FFFFFF,
-           font_A);
+  putfont8(binfo->vram, binfo->scrnx, binfo->scrny, 8, 8, COL8_FFFFFF,
+           hankaku + 'H' * 16);
+  putfont8(binfo->vram, binfo->scrnx, binfo->scrny, 16, 8, COL8_FFFFFF,
+           hankaku + 'E' * 16);
+  putfont8(binfo->vram, binfo->scrnx, binfo->scrny, 24, 8, COL8_FFFFFF,
+           hankaku + 'L' * 16);
+  putfont8(binfo->vram, binfo->scrnx, binfo->scrny, 32, 8, COL8_FFFFFF,
+           hankaku + 'L' * 16);
+  putfont8(binfo->vram, binfo->scrnx, binfo->scrny, 40, 8, COL8_FFFFFF,
+           hankaku + 'O' * 16);
+  putfont8(binfo->vram, binfo->scrnx, binfo->scrny, 48, 8, COL8_FFFFFF,
+           hankaku + 'W' * 16);
 
   for (;;) {
     io_hlt();
@@ -100,26 +109,36 @@ void boxfill8(unsigned char *vram, int xsize, unsigned char c, int x0, int y0,
 }
 
 void init_screen(char *vram, int xsize, int ysize) {
-  boxfill8((unsigned char *)vram, xsize, COL8_008484, 0, 0, xsize - 1, ysize - 29);
-  boxfill8((unsigned char *)vram, xsize, COL8_C6C6C6, 0, ysize - 28, xsize - 1, ysize - 28);
-  boxfill8((unsigned char *)vram, xsize, COL8_FFFFFF, 0, ysize - 27, xsize - 1, ysize - 27);
-  boxfill8((unsigned char *)vram, xsize, COL8_C6C6C6, 0, ysize - 26, xsize - 1, ysize - 1);
+  boxfill8((unsigned char *)vram, xsize, COL8_008484, 0, 0, xsize - 1,
+           ysize - 29);
+  boxfill8((unsigned char *)vram, xsize, COL8_C6C6C6, 0, ysize - 28, xsize - 1,
+           ysize - 28);
+  boxfill8((unsigned char *)vram, xsize, COL8_FFFFFF, 0, ysize - 27, xsize - 1,
+           ysize - 27);
+  boxfill8((unsigned char *)vram, xsize, COL8_C6C6C6, 0, ysize - 26, xsize - 1,
+           ysize - 1);
 
-  boxfill8((unsigned char *)vram, xsize, COL8_FFFFFF, 3, ysize - 24, 59, ysize - 24);
-  boxfill8((unsigned char *)vram, xsize, COL8_FFFFFF, 2, ysize - 24, 2, ysize - 4);
-  boxfill8((unsigned char *)vram, xsize, COL8_848484, 3, ysize - 4, 59, ysize - 4);
-  boxfill8((unsigned char *)vram, xsize, COL8_848484, 59, ysize - 23, 59, ysize - 5);
-  boxfill8((unsigned char *)vram, xsize, COL8_000000, 2, ysize - 3, 59, ysize - 3);
-  boxfill8((unsigned char *)vram, xsize, COL8_000000, 60, ysize - 24, 60, ysize - 3);
-
-  boxfill8((unsigned char *)vram, xsize, COL8_848484, xsize - 47, ysize - 24, xsize - 4,
+  boxfill8((unsigned char *)vram, xsize, COL8_FFFFFF, 3, ysize - 24, 59,
            ysize - 24);
-  boxfill8((unsigned char *)vram, xsize, COL8_848484, xsize - 47, ysize - 23, xsize - 47,
+  boxfill8((unsigned char *)vram, xsize, COL8_FFFFFF, 2, ysize - 24, 2,
            ysize - 4);
-  boxfill8((unsigned char *)vram, xsize, COL8_FFFFFF, xsize - 47, ysize - 3, xsize - 4,
+  boxfill8((unsigned char *)vram, xsize, COL8_848484, 3, ysize - 4, 59,
            ysize - 4);
-  boxfill8((unsigned char *)vram, xsize, COL8_FFFFFF, xsize - 3, ysize - 24, xsize - 3,
+  boxfill8((unsigned char *)vram, xsize, COL8_848484, 59, ysize - 23, 59,
+           ysize - 5);
+  boxfill8((unsigned char *)vram, xsize, COL8_000000, 2, ysize - 3, 59,
            ysize - 3);
+  boxfill8((unsigned char *)vram, xsize, COL8_000000, 60, ysize - 24, 60,
+           ysize - 3);
+
+  boxfill8((unsigned char *)vram, xsize, COL8_848484, xsize - 47, ysize - 24,
+           xsize - 4, ysize - 24);
+  boxfill8((unsigned char *)vram, xsize, COL8_848484, xsize - 47, ysize - 23,
+           xsize - 47, ysize - 4);
+  boxfill8((unsigned char *)vram, xsize, COL8_FFFFFF, xsize - 47, ysize - 3,
+           xsize - 4, ysize - 4);
+  boxfill8((unsigned char *)vram, xsize, COL8_FFFFFF, xsize - 3, ysize - 24,
+           xsize - 3, ysize - 3);
   return;
 }
 
