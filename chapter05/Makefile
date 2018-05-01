@@ -16,8 +16,11 @@ hankaku.c : makefont.c
 hankaku.o : hankaku.c hankaku.txt Makefile
 	gcc -c -m32 -o hankaku.o hankaku.c
 
-bootpack.hrb : bootpack.c har.ld hankaku.o nasmfunc.o Makefile		# Cファイルをリンカスクリプトを用いてコンパイル
-	gcc -march=i486 -m32 -nostdlib -T har.ld bootpack.c hankaku.o nasmfunc.o -o bootpack.hrb
+mysprintf.o : mysprintf.c Makefile
+	gcc -m32 -c -fno-pic -nostdlib -o mysprintf.o mysprintf.c
+
+bootpack.hrb : bootpack.c har.ld hankaku.o nasmfunc.o mysprintf.o Makefile		# Cファイルをリンカスクリプトを用いてコンパイル
+	gcc -march=i486 -m32 -nostdlib -T har.ld bootpack.c hankaku.o nasmfunc.o mysprintf.o -o bootpack.hrb
 
 haribote.sys : asmhead.bin bootpack.hrb Makefile
 	cat asmhead.bin bootpack.hrb > haribote.sys
