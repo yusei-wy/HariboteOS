@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 extern void io_hlt(void);
 extern void io_cli(void);
 extern int io_out8(int port, int data);
@@ -39,7 +41,7 @@ struct BOOTINFO {
 
 void HariMain(void) {
   struct BOOTINFO *binfo = (struct BOOTINFO *)0xff0;
-  extern char hankaku[4096];
+  char s[40];
 
   init_palette(); // パレットを設定
   init_screen(binfo->vram, binfo->scrnx, binfo->scrny);
@@ -49,6 +51,8 @@ void HariMain(void) {
                 (unsigned char *)"Haribote OS.");
   putfonts8_asc(binfo->vram, binfo->scrnx, 30, 30, COL8_FFFFFF,
                 (unsigned char *)"Haribote OS.");
+  sprintf(s, "scrnx = %d", binfo->scrnx);
+  putfonts8_asc(binfo->vram, binfo->scrnx, 16, 64, COL8_FFFFFF, s);
 
   for (;;) {
     io_hlt();
