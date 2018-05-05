@@ -1,3 +1,5 @@
+OBJS_BOOTPACK = hankaku.o nasmfunc.o mysprintf.o graphic.o dsctbl.o int.o
+
 default:
 	make img
 
@@ -16,8 +18,8 @@ hankaku.c : makefont.c
 %.o: %.c
 	gcc -c -m32 -fno-pic -nostdlib -o $*.o $*.c
 
-bootpack.hrb : bootpack.c har.ld hankaku.o nasmfunc.o mysprintf.o graphic.o dsctbl.o Makefile		# Cファイルをリンカスクリプトを用いてコンパイル
-	gcc -march=i486 -m32 -nostdlib -T har.ld bootpack.c hankaku.o nasmfunc.o mysprintf.o graphic.o dsctbl.o -o bootpack.hrb
+bootpack.hrb : $(OBJS_BOOTPACK) Makefile		# Cファイルをリンカスクリプトを用いてコンパイル
+	gcc -march=i486 -m32 -nostdlib -T har.ld bootpack.c $(OBJS_BOOTPACK) -o bootpack.hrb
 
 haribote.sys : asmhead.bin bootpack.hrb Makefile
 	cat asmhead.bin bootpack.hrb > haribote.sys
