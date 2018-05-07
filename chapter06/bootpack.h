@@ -1,4 +1,4 @@
-// asmhead.asm
+// --- asmhead.asm ---
 struct BOOTINFO { // 0x0ff0-0x0fff
   char cyls;          // ブートセクタはどこまでディスクを読んだのか
   char leds;          // ブート時のキーボードの LED の状態
@@ -9,10 +9,11 @@ struct BOOTINFO { // 0x0ff0-0x0fff
 };
 #define ADR_BOOTINFO    0x00000ff0
 
-// naskfunc.asm
+// --- naskfunc.asm ---
 extern void io_hlt(void);
 extern void io_cli(void);
 extern void io_sti(void);
+extern void io_stihlt(void);
 extern int io_in8(int port);
 extern void io_out8(int port, int data);
 extern int io_load_eflags(void);
@@ -22,7 +23,7 @@ extern void load_idtr(int limit, int addr);
 extern void asm_inthandler21(void);
 extern void asm_inthandler2c(void);
 
-// graphic.c
+// --- graphic.c ---
 void init_palette(void);
 void set_palette(int start, int end, unsigned char *rgb);
 void boxfill8(unsigned char *vram, int xsize, unsigned char c, int x0, int y0,
@@ -53,7 +54,7 @@ void putblock8_8(char *vram, int vxsize, int pxsize, int pysize, int px0, int py
 #define COL8_008484 14
 #define COL8_848484 15
 
-// dsctbl.c
+// --- dsctbl.c ---
 struct SEGMENT_DESCRIPTOR {
   short limit_low, base_low;
   char base_mid, access_right;
@@ -80,7 +81,11 @@ void set_gatedesc(struct GATE_DESCRIPTOR *gd, int offset, int selector, int ar);
 #define AR_CODE32_ER  0x409a
 #define AR_INTGATE32  0x008e
 
-// int.c
+// --- int.c ---
+struct KEYBUF {
+  unsigned char data, flag;
+};
+
 void init_pic(void);
 void inthandler21(int *esp);
 void inthandler2c(int *esp);
