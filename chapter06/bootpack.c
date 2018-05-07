@@ -1,17 +1,18 @@
 #include "bootpack.h"
 #include <stdio.h>
 
-extern struct KEYBUF keybuf;
+extern struct FIFO8 keyinfo;
 
 void HariMain(void) {
   struct BOOTINFO *binfo = (struct BOOTINFO *)ADR_BOOTINFO;
-  char s[40], mcursor[256];
-  int mx, my, i, j;
+  char s[40], mcursor[256], keybuf[32];
+  int mx, my, i;
 
   init_gdtidt();
   init_pic();
   io_sti(); // IDT/PIC の初期化が終わったので CPU の割り込み禁止を解除
 
+  fifo8_init(&keyinfo, 32, keybuf);
   io_out8(PIC0_IMR, 0xf9);  // PIC1 とキーボードを許可
   io_out8(PIC1_IMR, 0xef);  // マウスを許可(11101111)
 
@@ -26,14 +27,10 @@ void HariMain(void) {
 
   for (;;) {
     io_cli(); // 割り込み禁止
-    if (keybuf.len == 0) {
+    if (fifo8_status(&keyinfo) == 0) {
       io_stihlt();
     } else {
-      i = keybuf.data[keybuf.next_r];
-      keybuf.len--;
-      keybuf.next_r++;
-      if (keybuf.next_r == 32)
-        keybuf.next_r = 0;
+      i = fifo8_get(&keyinfo);
       io_sti();
       sprintf(s, "%x", i);
       boxfill8(binfo->vram, binfo->scrnx, COL8_008484, 0, 16, 15, 31);

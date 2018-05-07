@@ -1,4 +1,4 @@
-OBJS_BOOTPACK = hankaku.o nasmfunc.o mysprintf.o graphic.o dsctbl.o int.o
+OBJS_BOOTPACK = hankaku.o nasmfunc.o mysprintf.o graphic.o dsctbl.o int.o fifo.o
 
 default:
 	make img
@@ -35,6 +35,7 @@ img :
 	make -r haribote.img
 
 run :
+	make clean
 	make img
 	qemu-system-i386 -fda haribote.img  # "-fda" for floppy disk
 

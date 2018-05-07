@@ -28,7 +28,7 @@ void init_pic(void) {
   return;
 }
 
-struct KEYBUF keybuf;
+struct FIFO8 keyinfo;
 
 #define PORT_KEYDAY   0x0060
 
@@ -39,13 +39,7 @@ void inthandler21(int *esp) {
   unsigned char data;
   io_out8(PIC0_OCW2, 0x61); // IRQ-01 受付完了を PIC に通知
   data = io_in8(PORT_KEYDAY);
-  if (keybuf.len < 32) {
-    keybuf.data[keybuf.next_w] = data;
-    keybuf.len++;
-    keybuf.next_w++;
-    if (keybuf.next_w == 32) 
-      keybuf.next_w = 0;
-  }
+  fifo8_put(&keyinfo, data);
   return;
 }
 

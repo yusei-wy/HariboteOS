@@ -23,6 +23,16 @@ extern void load_idtr(int limit, int addr);
 extern void asm_inthandler21(void);
 extern void asm_inthandler2c(void);
 
+// --- fifo.c ---
+struct FIFO8 {
+  unsigned char *buf;
+  int p, q, size, free, flags;
+};
+void fifo8_init(struct FIFO8 *fifo, int size, unsigned char *buf);
+int fifo8_put(struct FIFO8 *fifo, unsigned char data);
+int fifo8_get(struct FIFO8 *fifo);
+int fifo8_status(struct FIFO8 *fifo);
+
 // --- graphic.c ---
 void init_palette(void);
 void set_palette(int start, int end, unsigned char *rgb);
@@ -35,7 +45,6 @@ void putfonts8_asc(char *vram, int xsize, int x, int y, char c,
                    unsigned char *s);
 void init_mouse_cursor8(char *mouse, char bc);
 void putblock8_8(char *vram, int vxsize, int pxsize, int pysize, int px0, int py0, char *buf, int bxsize);
-
 // パレットを簡単に扱うための定数
 #define COL8_000000 0
 #define COL8_FF0000 1
@@ -60,17 +69,14 @@ struct SEGMENT_DESCRIPTOR {
   char base_mid, access_right;
   char limit_high, base_high;
 };
-
 struct GATE_DESCRIPTOR {
   short offset_low, selector;
   char dw_count, access_right;
   short offset_high;
 };
-
 void init_gdtidt(void);
 void set_segmdesc(struct SEGMENT_DESCRIPTOR *sd, unsigned int limit, int base, int ar);
 void set_gatedesc(struct GATE_DESCRIPTOR *gd, int offset, int selector, int ar);
-
 #define ADR_IDT       0x0026f800
 #define LIMIT_IDT     0x000007ff
 #define ADR_GDT       0x00270000
@@ -82,15 +88,9 @@ void set_gatedesc(struct GATE_DESCRIPTOR *gd, int offset, int selector, int ar);
 #define AR_INTGATE32  0x008e
 
 // --- int.c ---
-struct KEYBUF {
-  unsigned char data[32];
-  int next_r, next_w, len;
-};
-
 void init_pic(void);
 void inthandler21(int *esp);
 void inthandler2c(int *esp);
-
 #define PIC0_ICW1   0x0020
 #define PIC0_OCW2   0x0020
 #define PIC0_IMR    0x0021
