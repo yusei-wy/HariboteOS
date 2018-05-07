@@ -26,15 +26,14 @@ void HariMain(void) {
 
   for (;;) {
     io_cli(); // 割り込み禁止
-    if (keybuf.next == 0) {
+    if (keybuf.len == 0) {
       io_stihlt();
     } else {
-      i = keybuf.data[0];
-      keybuf.next--;
-      // 次に data[0] でデータを受け取るためにデータが詰まっている範囲をずらしている
-      for (j = 0; j < keybuf.next; j++) {
-        keybuf.data[j] = keybuf.data[j + 1];
-      }
+      i = keybuf.data[keybuf.next_r];
+      keybuf.len--;
+      keybuf.next_r++;
+      if (keybuf.next_r == 32)
+        keybuf.next_r = 0;
       io_sti();
       sprintf(s, "%x", i);
       boxfill8(binfo->vram, binfo->scrnx, COL8_008484, 0, 16, 15, 31);
