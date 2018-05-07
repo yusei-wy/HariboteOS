@@ -6,7 +6,7 @@ extern struct KEYBUF keybuf;
 void HariMain(void) {
   struct BOOTINFO *binfo = (struct BOOTINFO *)ADR_BOOTINFO;
   char s[40], mcursor[256];
-  int mx, my, i;
+  int mx, my, i, j;
 
   init_gdtidt();
   init_pic();
@@ -26,11 +26,15 @@ void HariMain(void) {
 
   for (;;) {
     io_cli(); // 割り込み禁止
-    if (keybuf.flag == 0) {
+    if (keybuf.next == 0) {
       io_stihlt();
     } else {
-      i = keybuf.data;
-      keybuf.flag = 0;
+      i = keybuf.data[0];
+      keybuf.next--;
+      // 次に data[0] でデータを受け取るためにデータが詰まっている範囲をずらしている
+      for (j = 0; j < keybuf.next; j++) {
+        keybuf.data[j] = keybuf.data[j + 1];
+      }
       io_sti();
       sprintf(s, "%x", i);
       boxfill8(binfo->vram, binfo->scrnx, COL8_008484, 0, 16, 15, 31);
