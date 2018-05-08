@@ -35,7 +35,6 @@ img :
 	make -r haribote.img
 
 run :
-	make clean
 	make img
 	qemu-system-i386 -fda haribote.img  # "-fda" for floppy disk
 
