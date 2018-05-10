@@ -20,6 +20,8 @@ extern int io_load_eflags(void);
 extern void io_store_eflags(int eflags);
 extern void load_gdtr(int limit, int addr);
 extern void load_idtr(int limit, int addr);
+int load_cr0(void);
+int store_cr0(int cr0);
 extern void asm_inthandler21(void);
 extern void asm_inthandler2c(void);
 
