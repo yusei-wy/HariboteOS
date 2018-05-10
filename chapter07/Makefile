@@ -1,4 +1,4 @@
-OBJS_BOOTPACK = hankaku.o nasmfunc.o mysprintf.o graphic.o dsctbl.o int.o fifo.o
+OBJS_BOOTPACK = hankaku.o nasmfunc.o mysprintf.o graphic.o dsctbl.o int.o fifo.o keyboard.o mouse.o
 
 default:
 	make img
