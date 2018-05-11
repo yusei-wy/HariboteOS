@@ -2,7 +2,6 @@
 #include <stdio.h>
 
 unsigned int memtest(unsigned int start, unsigned int end);
-unsigned int memtest_sub(unsigned int start, unsigned int end);
 
 void HariMain(void) {
   struct BOOTINFO *binfo = (struct BOOTINFO *)ADR_BOOTINFO;
@@ -119,25 +118,3 @@ unsigned int memtest(unsigned int start, unsigned int end) {
   return i;
 }
 
-/**
- * メモリチェク処理
- */
-unsigned int memtest_sub(unsigned int start, unsigned int end) {
-  unsigned int i, *p, old, pat0 = 0xaa55aa55, pat1 = 0x55aa55aa;
-  for (i = start; i <= end; i += 0x1000) {
-    p = (unsigned int *)(i + 0xffc);
-    old = *p; // いじる前の値を覚えておく
-    *p = pat0;        // 試しに書いてみる
-    *p ^= 0xffffffff; // そしてそれを反転しみる
-    if (*p != pat1) { // 反転結果になったか?
-not_memory:
-      *p = old;
-      break;
-    }
-    *p ^= 0xffffffff; // もう一度反転してみる
-    if (*p != pat0)   // 反転結果になったか?
-      goto not_memory;
-    *p = old; // いじった値を元に戻す
-  }
-  return i;
-}
