@@ -1,5 +1,8 @@
-#include "bootpack.h"
+/*
+ * メモリ関係
+ */
 
+#include "bootpack.h"
 #define EFLAGS_AC_BIT 0x00040000
 #define CR0_CACHE_DISABLE 0x60000000
 
