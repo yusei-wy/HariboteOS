@@ -3,6 +3,7 @@
  */
 
 #include "bootpack.h"
+
 #define EFLAGS_AC_BIT 0x00040000
 #define CR0_CACHE_DISABLE 0x60000000
 
@@ -104,6 +105,8 @@ int memman_free(struct MEMMAN *man, unsigned int addr, unsigned int size) {
       if (i < man->frees) {
         // 後ろもある
         if (addr + size == man->free[i].addr) {
+          // なんと後ろもまとめられる
+          man->free[i - 1].size += man->free[i].size;
           // man->free[i] の削除
           // free[i] がなくなったので前へ詰める
           man->frees--;
@@ -127,7 +130,7 @@ int memman_free(struct MEMMAN *man, unsigned int addr, unsigned int size) {
   // 前にも後ろにもまとめられれない
   if (man->frees < MEMMAN_FREES) {
     // free[i] より後ろを後ろへずらして隙間を作る
-    for (j = man->frees; j > i; j--) 
+    for (j = man->frees; j > i; j--)
       man->free[j] = man->free[j - 1];
     man->frees++;
     if (man->maxfrees < man->frees)
@@ -145,9 +148,9 @@ int memman_free(struct MEMMAN *man, unsigned int addr, unsigned int size) {
 /**
  * 0x1000 バイト単位でメモリを確保する
  */
-unsigned int meman_alloc_4k(struct MEMMAN *man, unsigned int size) {
+unsigned int memman_alloc_4k(struct MEMMAN *man, unsigned int size) {
   unsigned int a;
-  size = (size + 0xfff) & 0xfffff0000;
+  size = (size + 0xfff) & 0xfffff000;
   a = memman_alloc(man, size);
   return a;
 }
@@ -155,9 +158,9 @@ unsigned int meman_alloc_4k(struct MEMMAN *man, unsigned int size) {
 /**
  * 0x1000 バイト単位でメモリを解放する
  */
-unsigned int memman_free_4k(struct MEMMAN *man, unsigned int addr, unsigned int size) {
+int memman_free_4k(struct MEMMAN *man, unsigned int addr, unsigned int size) {
   int i;
-  size = (size + 0xfff) & 0xfffff0000;
+  size = (size + 0xfff) & 0xfffff000;
   i = memman_free(man, addr, size);
   return i;
 }
