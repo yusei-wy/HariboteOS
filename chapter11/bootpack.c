@@ -83,10 +83,10 @@ void HariMain(void) {
             mx = 0;
           if (my < 0)
             my = 0;
-          if (mx > binfo->scrnx - 16)
-            mx = binfo->scrnx - 16;
-          if (my > binfo->scrny - 16)
-            my = binfo->scrny - 16;
+          if (mx > binfo->scrnx - 1)
+            mx = binfo->scrnx - 1;
+          if (my > binfo->scrny - 1)
+            my = binfo->scrny - 1;
           sprintf(s, "(%d, %d)", mx, my);
           boxfill8(buf_back, binfo->scrnx, COL8_008484, 0, 0, 79, 15); // 座標消す
           putfonts8_asc(buf_back, binfo->scrnx, 0, 0, COL8_FFFFFF, s); // 座標書く
