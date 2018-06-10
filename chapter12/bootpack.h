@@ -168,8 +168,9 @@ struct TIMER {
   unsigned char data;
 };
 struct TIMERCTL {
-  unsigned int count, next;
-  struct TIMER timer[MAX_SHEETS];
+  unsigned int count, next, _using;
+  struct TIMER *timers[MAX_SHEETS];
+  struct TIMER timers0[MAX_SHEETS];
 };
 extern struct TIMERCTL timerctl;
 void init_pit(void);
