@@ -44,7 +44,7 @@ int fifo8_get(struct FIFO8 *fifo) {
   if (fifo->free == fifo->size)
     // バッファが空っぽの時はとりあえず -1 が返される
     return -1;
-   data = fifo->buf[fifo->q];
+  data = fifo->buf[fifo->q];
   fifo->q++;
   if (fifo->q == fifo->size)
     fifo->q = 0;
