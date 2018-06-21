@@ -4,7 +4,7 @@
 
 #include "bootpack.h"
 
-#define EFLAGS_AC_BIT 0x00040000
+#define EFLAGS_AC_BIT     0x00040000
 #define CR0_CACHE_DISABLE 0x60000000
 
 /**
@@ -57,8 +57,9 @@ void memman_init(struct MEMMAN *man) {
  */
 unsigned int memman_total(struct MEMMAN *man) {
   unsigned int i, t = 0;
-  for (i = 0; i < man->frees; i++)
+  for (i = 0; i < man->frees; i++) {
     t += man->free[i].size;
+  }
   return t;
 }
 
@@ -76,8 +77,9 @@ unsigned int memman_alloc(struct MEMMAN *man, unsigned int size) {
       if (man->free[i].size == 0) {
         // free[i] がなくなったので前へつめる
         man->frees--;
-        for (; i < man->frees; i++)
+        for (; i < man->frees; i++) {
           man->free[i] = man->free[i + 1];  // 構造体の代入
+        }
       }
       return a;
     }
@@ -110,8 +112,9 @@ int memman_free(struct MEMMAN *man, unsigned int addr, unsigned int size) {
           // man->free[i] の削除
           // free[i] がなくなったので前へ詰める
           man->frees--;
-          for (; i < man->frees; i++)
+          for (; i < man->frees; i++) {
             man->free[i] = man->free[i + 1];  // 構造体の代入
+          }
         }
       }
       return 0; // 成功終了
@@ -130,8 +133,9 @@ int memman_free(struct MEMMAN *man, unsigned int addr, unsigned int size) {
   // 前にも後ろにもまとめられれない
   if (man->frees < MEMMAN_FREES) {
     // free[i] より後ろを後ろへずらして隙間を作る
-    for (j = man->frees; j > i; j--)
+    for (j = man->frees; j > i; j--) {
       man->free[j] = man->free[j - 1];
+    }
     man->frees++;
     if (man->maxfrees < man->frees)
       man->maxfrees = man->frees; // 最大値を更新
