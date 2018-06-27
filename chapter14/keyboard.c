@@ -7,7 +7,7 @@ int keydata0;
  * PS/2 キーボードからの割り込み
  */
 void inthandler21(int *esp) {
-  unsigned char data;
+  int data;
   io_out8(PIC0_OCW2, 0x61); // IRQ-01 受付完了を PIC に通知
   data = io_in8(PORT_KEYDAT);
   fifo32_put(keyfifo, data + keydata0);

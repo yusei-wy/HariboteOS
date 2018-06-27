@@ -1,7 +1,7 @@
 ; haribote-os boot nasm
 ; TAB=4
 
-VBEMODE EQU     0x103           ; 1024 x 768 x 8bit カラー
+VBEMODE EQU     0x105           ; 1024 x 768 x 8bit カラー
 ; (画面モード一覧)
 ;   0x100 : 640 x 400 x 8bit color
 ;   0x101 : 640 x 480 x 8bit color
