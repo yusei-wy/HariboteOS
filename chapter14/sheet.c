@@ -100,6 +100,7 @@ void sheet_refreshmap(struct SHTCTL *ctl, int vx0, int vy0, int vx1, int vy1, in
       }
     }
   } 
+  return;
 }
 
 /**
@@ -135,7 +136,7 @@ void sheet_refreshsub(struct SHTCTL *ctl, int vx0, int vy0, int vx1, int vy1, in
       bx1 = sht->bxsize;
     if (by1 > sht->bysize)
       by1 = sht->bysize;
-    for (by = 0; by < by1; by++) {
+    for (by = by0; by < by1; by++) {
       vy = sht->vy0 + by;
       for (bx = bx0; bx < bx1; bx++) {
         vx = sht->vx0 + bx;
@@ -181,9 +182,9 @@ void sheet_updown(struct SHEET *sht, int height) {
         }
       }
       ctl->top--; // 非表示中の下敷きが１つ減るので一番上の高さが減る
+      sheet_refreshmap(ctl, sht->vx0, sht->vy0, sht->vx0 + sht->bxsize, sht->vy0 + sht->bysize, 0);
+      sheet_refreshsub(ctl, sht->vx0, sht->vy0, sht->vx0 + sht->bxsize, sht->vy0 + sht->bysize, 0, old - 1);
     }
-    sheet_refreshmap(ctl, sht->vx0, sht->vy0, sht->vx0 + sht->bxsize, sht->vy0 + sht->bysize, 0);
-    sheet_refreshsub(ctl, sht->vx0, sht->vy0, sht->vx0 + sht->bxsize, sht->vy0 + sht->bysize, 0, old - 1);
   } else if (old < height) {  // 以前よりも高くなる
     if (old >= 0) {
       // 間のものを押し下げる

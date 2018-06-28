@@ -10,7 +10,7 @@ void init_gdtidt(void) {
   int i;
 
   // GDT の初期化
-  for (i = 0; i < LIMIT_GDT/8; i++) {  // セグメントで扱えるのは 0 ~ 8191(8192個のセグメントが定義できる)
+  for (i = 0; i <= LIMIT_GDT/8; i++) {  // セグメントで扱えるのは 0 ~ 8191(8192個のセグメントが定義できる)
     set_segmdesc(gdt + i, 0, 0, 0);
   }
   set_segmdesc(gdt + 1, 0xffffffff, 0x00000000, AR_DATA32_RW);
@@ -18,7 +18,7 @@ void init_gdtidt(void) {
   load_gdtr(LIMIT_GDT, ADR_GDT);
 
   // IDT の初期化
-  for (i = 0; i < LIMIT_IDT/8; i++) { // IDT は 0 ~ 255 まで
+  for (i = 0; i <= LIMIT_IDT/8; i++) { // IDT は 0 ~ 255 まで
     set_gatedesc(idt + i, 0, 0, 0);
   }
   load_idtr(LIMIT_IDT, ADR_IDT);

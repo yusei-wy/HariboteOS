@@ -46,7 +46,7 @@ void timer_free(struct TIMER *timer) {
   return;
 }
 
-void timer_init(struct TIMER *timer, struct FIFO32 *fifo, unsigned char data) {
+void timer_init(struct TIMER *timer, struct FIFO32 *fifo, int data) {
   timer->fifo = fifo;
   timer->data = data;
   return;
@@ -83,7 +83,6 @@ void timer_settime(struct TIMER *timer, unsigned int timeout) {
 }
 
 void inthandler20(int *esp) {
-  int i;
   struct TIMER *timer;
   io_out8(PIC0_OCW2, 0x60); // IRQ-00 受付完了を PIC に通知
   timerctl.count++;

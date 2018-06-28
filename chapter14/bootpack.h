@@ -21,7 +21,7 @@ extern void io_store_eflags(int eflags);
 extern void load_gdtr(int limit, int addr);
 extern void load_idtr(int limit, int addr);
 extern int load_cr0(void);
-extern int store_cr0(int cr0);
+extern void store_cr0(int cr0);
 extern void asm_inthandler20(void);
 extern void asm_inthandler21(void);
 extern void asm_inthandler2c(void);
@@ -29,10 +29,10 @@ extern unsigned int memtest_sub(unsigned int start, unsigned int end);
 
 // --- fifo.c ---
 struct FIFO32 {
-  unsigned char *buf;
+  int *buf;
   int p, q, size, free, flags;
 };
-void fifo32_init(struct FIFO32 *fifo, int size, unsigned char *buf);
+void fifo32_init(struct FIFO32 *fifo, int size, int *buf);
 int fifo32_put(struct FIFO32 *fifo, int data);
 int fifo32_get(struct FIFO32 *fifo);
 int fifo32_status(struct FIFO32 *fifo);
@@ -175,6 +175,6 @@ extern struct TIMERCTL timerctl;
 void init_pit(void);
 struct TIMER *timer_alloc(void); 
 void timer_free(struct TIMER *timer);
-void timer_init(struct TIMER *timer, struct FIFO32 *fifo, unsigned char data);
+void timer_init(struct TIMER *timer, struct FIFO32 *fifo, int data);
 void timer_settime(struct TIMER *timer, unsigned int timeout);
 void inthandler20(int *esp);

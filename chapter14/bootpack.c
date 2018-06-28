@@ -10,7 +10,7 @@ void HariMain(void) {
   char s[40];
   int fifobuf[128];
   struct TIMER *timer, *timer2, *timer3;
-  int mx, my, i, count = 0;
+  int mx, my, i;
   unsigned int memtotal;
   struct MOUSE_DEC mdec;
   struct MEMMAN *memman = (struct MEMMAN *)MEMMAN_ADDR;
@@ -72,8 +72,9 @@ void HariMain(void) {
 
   for (;;) {
     // // Ubuntu 18.04 ではコレがないと counter が表示されない
-    // sprintf(s, "%d", count);
-    // putfonts8_asc_sht(sht_win, 40, 28, COL8_000000, COL8_C6C6C6, s, 10);
+    // sprintf(s, "A");
+    // putfonts8_asc_sht(sht_win, 40, 28, COL8_000000, COL8_C6C6C6, s, 1);
+    
     io_cli(); // 割り込み禁止
     if (fifo32_status(&fifo) == 0) {
       io_stihlt();
@@ -83,7 +84,9 @@ void HariMain(void) {
       if (256 <= i && i <= 511) { // キーボードデータ
         sprintf(s, "%x", i - 256);
         putfonts8_asc_sht(sht_back, 0, 16, COL8_FFFFFF, COL8_008484, s, 2);
-      } else if (512 <= i && i <= 767) {  // マウスデー
+        if (i == 0x1e + 256) 
+          putfonts8_asc_sht(sht_win, 40, 28, COL8_000000, COL8_C6C6C6, "A", 1);
+      } else if (512 <= i && i <= 767) {  // マウスデータ
         if (mouse_decode(&mdec, i - 512) != 0) {
           // データが3バイト揃ったので表示
           sprintf(s, "[lcr %d %d]", mdec.x, mdec.y);

@@ -9,7 +9,7 @@
 /**
  * FIFO バッファの初期化
  */
-void fifo32_init(struct FIFO32 *fifo, int size, unsigned char *buf) {
+void fifo32_init(struct FIFO32 *fifo, int size, int *buf) {
   fifo->size = size;
   fifo->buf = buf;
   fifo->free = size;  // 空き
@@ -41,8 +41,8 @@ int fifo32_put(struct FIFO32 *fifo, int data) {
  */
 int fifo32_get(struct FIFO32 *fifo) {
   int data;
+  // バッファが空っぽの時はとりあえず -1 が返される
   if (fifo->free == fifo->size)
-    // バッファが空っぽの時はとりあえず -1 が返される
     return -1;
   data = fifo->buf[fifo->q];
   fifo->q++;
