@@ -27,8 +27,7 @@ extern void asm_inthandler20(void);
 extern void asm_inthandler21(void);
 extern void asm_inthandler2c(void);
 extern unsigned int memtest_sub(unsigned int start, unsigned int end);
-extern void taskswitch3(void);
-extern void taskswitch4(void);
+extern void farjmp(int eip, int cs);
 
 // --- fifo.c ---
 struct FIFO32 {
