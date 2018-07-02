@@ -176,7 +176,7 @@ void HariMain(void) {
         }
       } else if (i == 10) { // 10秒タイマ
         putfonts8_asc_sht(sht_back, 0, 64, COL8_FFFFFF, COL8_008484, "10[sec]", 7);
-        //taskswitch4();
+        taskswitch4();
       } else if (i == 3) {  // 3秒タイマ
         putfonts8_asc_sht(sht_back, 0, 80, COL8_FFFFFF, COL8_008484, "3[sec]", 6);
       } else if (i <= 1) {  // カーソル用タイマ
@@ -275,7 +275,6 @@ void make_textbox8(struct SHEET *sht, int x0, int y0, int sx, int sy, int c) {
  * タスクスイッチされたときに呼び出される
  */
 void task_b_main(void) {
-  /*
   struct FIFO32 fifo;
   struct TIMER *timer;
   int i, fifobuf[128];
@@ -298,7 +297,5 @@ void task_b_main(void) {
       }
     }
   }
-  */
-  for (;;) { io_hlt(); }
 }
 
