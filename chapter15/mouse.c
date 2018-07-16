@@ -12,6 +12,7 @@ void inthandler2c(int *esp) {
   io_out8(PIC0_OCW2, 0x62); // IRQ-02 受付完了を PIC0 に通知
   data = io_in8(PORT_KEYDAT);
   fifo32_put(mousefifo, data + mousedata0);
+  return;
 }
 
 #define KEYCMD_SENDTO_MOUSE 0xd4

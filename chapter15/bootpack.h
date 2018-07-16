@@ -21,8 +21,8 @@ extern void io_store_eflags(int eflags);
 extern void load_gdtr(int limit, int addr);
 extern void load_idtr(int limit, int addr);
 extern int load_cr0(void);
-extern void load_tr(int tr);
 extern void store_cr0(int cr0);
+extern void load_tr(int tr);
 extern void asm_inthandler20(void);
 extern void asm_inthandler21(void);
 extern void asm_inthandler2c(void);
@@ -138,7 +138,7 @@ unsigned int memman_total(struct MEMMAN *man);
 unsigned int memman_alloc(struct MEMMAN *man, unsigned int size);
 int memman_free(struct MEMMAN * man, unsigned int addr, unsigned int size);
 unsigned int memman_alloc_4k(struct MEMMAN *man, unsigned size);
-int memman_free_4k(struct MEMMAN *man, unsigned int addr, unsigned size);
+int memman_free_4k(struct MEMMAN *man, unsigned int addr, unsigned int size);
 
 // --- sheet.c ---
 #define MAX_SHEETS    256

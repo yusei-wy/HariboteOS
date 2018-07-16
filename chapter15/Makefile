@@ -36,11 +36,14 @@ img :
 
 run :
 	make img
-	qemu-system-i386 -m 32M -fda haribote.img  # "-fda" for floppy disk
+	qemu-system-i386 -m 32 -fda haribote.img  # "-fda" for floppy disk
 
 debug :
 	make img
-	qemu-system-i386 -fda haribote.img -gdb tcp::10000 -S
+	qemu-system-i386 -m 32 -fda haribote.img -gdb tcp::10000 -S &
+
+debug2 :
+	qemu-system-i386 -m 32 -localtime -vga std -fda haribote.img -gdb tcp::10000 -S &
 
 clean :
 	rm *.lst *.bin *.sys *.img *.hrb *.o

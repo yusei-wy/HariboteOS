@@ -1,6 +1,8 @@
 ; nasmfunc.asm
 ; TAB=4
 
+bits 32
+
 section .text
     GLOBAL  io_hlt, io_cli, io_sti, io_stihlt
     GLOBAL  io_in8, io_in16, io_in32
@@ -187,5 +189,5 @@ mts_fin:
     RET
 
 farjmp:     ; void farjmp(int eip, int cs);
-    JMP     FAR [ESP+4];        ; eip, cs
+    JMP     FAR [ESP+4]             ; eip, cs
     RET
