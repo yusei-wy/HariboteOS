@@ -7,6 +7,71 @@ struct TASKCTL *taskctl;
 struct TIMER *task_timer;
 
 /**
+ * 現在作動中の struct TASK の番地を教えてくれる
+ */
+struct TASK *task_now(void) {
+  struct TASKLEVEL *tl = &taskctl->level[taskctl->now_lv];
+  return tl->tasks[tl->now];
+}
+
+/**
+ * struct TASKLEVEL にタスクを1つ追加する
+ */
+void task_add(struct TASK *task) {
+  struct TASKLEVEL *tl = &taskctl->level[task->level];
+  //// このタスクは最大数追加済み
+  //if (tl->running < MAX_TASKS_LV)
+  //  return;
+  tl->tasks[tl->running] = task;
+  tl->running++;
+  task->flags = 2;  // 動作中
+  return;
+}
+
+/**
+ * struct TASKLEVEL からタスクを1つ取り除く
+ */
+void task_remove(struct TASK *task) {
+  int i;
+  struct TASKLEVEL *tl = &taskctl->level[task->level];
+
+  // task がどこにいるか探す
+  for (i = 0; i < tl->running; i++) {
+    if (tl->tasks[i] == task)
+      break;
+  }
+
+  tl->running--;
+  if (i < tl->now) 
+    tl->now--;    // ずれるのでコレも合わせておく
+  if (tl->now >= tl->running)
+    tl->now = 0;  // now がおかしな値になっていたら修正する
+  task->flags = 1;  // スリープ中
+
+  // ずらし
+  for (; i < tl->running; i++) {
+    tl->tasks[i] = tl->tasks[i + 1];
+  }
+
+  return;
+}
+
+/**
+ * task_switch のときに次のレベルを決める
+ */
+void task_switchsub(void) {
+  int i;
+  // 一番上のレベルを探す
+  for (i = 0; i < MAX_TASKLEVES; i++) {
+    if (taskctl->level[i].running > 0)
+      break;
+  }
+  taskctl->now_lv = i;
+  taskctl->lv_change = 0;
+  return;
+}
+
+/**
  * タスクの初期化
  */
 struct TASK *task_init(struct MEMMAN *memman) {
@@ -19,12 +84,16 @@ struct TASK *task_init(struct MEMMAN *memman) {
     taskctl->tasks0[i].sel = (TASK_GDT0 + i) * 8;
     set_segmdesc(gdt + TASK_GDT0 + i, 103, (int)&taskctl->tasks0[i].tss, AR_TSS32);
   }
+  for (i = 0; i < MAX_TASKLEVES; i++) {
+    taskctl->level[i].running = 0;
+    taskctl->level[i].now = 0;
+  }
   task = task_alloc();
   task->flags = 2;    // 動作中のマーク
   task->priority = 2; // 0.02秒
-  taskctl->running = 1;
-  taskctl->now = 0;
-  taskctl->tasks[0] = task;
+  task->level = 0; // 最高レベル
+  task_add(task);
+  task_switchsub();
   load_tr(task->sel);
   task_timer = timer_alloc();
   timer_settime(task_timer, task->priority);
@@ -64,13 +133,39 @@ struct TASK *task_alloc(void) {
 /**
  * タスクの実行
  */
-void task_run(struct TASK *task, int priority) {
+void task_run(struct TASK *task, int level, int priority) {
+  if (level < 0)
+    level = task->level;  // レベルを変更しない
   if (priority > 0) 
     task->priority = priority;
+
+  if (task->flags == 2 && task->level != level) // 動作中レベルの変更
+    task_remove(task);  // コレを実行すると flags は1になるので下の if も実行される
   if (task->flags != 2) {
-    task->flags = 2;  // 動作中のマーク
-    taskctl->tasks[taskctl->running] = task;
-    taskctl->running++;
+    // スリープから起こされる場合
+    task->level = level;
+    task_add(task);
+  }
+
+  taskctl->lv_change = 1; // 次回タスクスイッチのときにレベルを見直す
+  return;
+}
+
+/**
+ * 指定した task を tasks[] から削除
+ */
+void task_sleep(struct TASK *task) {
+  struct TASK *now_task;
+  if (task->flags == 2) {
+    // 動作中だったら
+    now_task = task_now();
+    task_remove(task);  // コレを実行すると flags は1になる
+    if (task == now_task) {
+      // 自分自身のスリープだったのでタスクスイッチが必要
+      task_switchsub();
+      now_task = task_now();  // 設定語での「現在のタスク」を教えてもらう
+      farjmp(0, now_task->sel);
+    }
   }
   return;
 }
@@ -79,48 +174,19 @@ void task_run(struct TASK *task, int priority) {
  * タスクの切り替え
  */
 void task_switch(void) {
-  struct TASK *task;
-  taskctl->now++;
-  if (taskctl->now == taskctl->running)
-    taskctl->now = 0;
-  task = taskctl->tasks[taskctl->now];
-  timer_settime(task_timer, task->priority);
-  if (taskctl->running >= 2) {
-    farjmp(0, task->sel);
+  struct TASKLEVEL *tl = &taskctl->level[taskctl->now_lv];
+  struct TASK *new_task, *now_task = tl->tasks[tl->now];
+  tl->now++;
+  if (tl->now == tl->running)
+    tl->now = 0;
+  if (taskctl->lv_change != 0) {
+    task_switchsub();
+    tl = &taskctl->level[taskctl->now_lv];
   }
+  new_task = tl->tasks[tl->now];
+  timer_settime(task_timer, new_task->priority);
+  if (new_task != now_task)
+    farjmp(0, new_task->sel);
   return;
 }
 
-/**
- * 指定した task を tasks[] から削除
- */
-void task_sleep(struct TASK *task) {
-  int i;
-  char ts = 0;
-  if (task->flags == 2) { // 指定タスクがもし起きていたら
-    if (task == taskctl->tasks[taskctl->now])
-      ts = 1; // 自分自身を寝かせるので後でタスクスイッチする
-    // task がどこにいるかを探す
-    for (i = 0; i < taskctl->running; i++) {
-      if (taskctl->tasks[i] == task)
-        // ここにいた
-        break;
-    }
-    taskctl->running--;
-    if (i < taskctl->now)
-      taskctl->now--; // ずれるのでここも合わせておく
-    // ずらし
-    for (; i < taskctl->running; i++) {
-      taskctl->tasks[i] = taskctl->tasks[i + 1];
-    }
-    task->flags = 1;  // 動作していない状態
-    if (ts != 0) {
-      // タスクスイッチする
-      if (taskctl->now >= taskctl->running)
-        // now がおかしな値になっていたら修正する
-        taskctl->now = 0;
-      farjmp(0, taskctl->tasks[taskctl->now]->sel);
-    }
-  }
-  return;
-}
