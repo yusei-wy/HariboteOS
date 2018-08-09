@@ -17,6 +17,9 @@ void console_task(struct SHEET *sheet, int memtotal);
 int cons_newline(int cursor_y, struct SHEET *sheet);
 
 #define KEYCMD_LED 0xed
+#define CHAR_TAB        0x09  // TAB
+#define CHAR_LINE_LINE  0x0a  // 改行
+#define CHAR_RETURN     0x0d  // 復帰
 
 void HariMain(void) {
   struct BOOTINFO *binfo = (struct BOOTINFO *)ADR_BOOTINFO;
@@ -470,8 +473,7 @@ void console_task(struct SHEET *sheet, int memtotal) {
               }
             }
             cursor_y = cons_newline(cursor_y, sheet);
-          } else if (cmdline[0] == 't' && cmdline[1] == 'y' && cmdline[2] == 'p' &&
-            cmdline[3] == 'e' && cmdline[4] == ' ') {
+          } else if (strncmp(cmdline, "type ", 5) == 0) {
             // type コマンド
             // ファイル名を準備する
             for (y = 0; y < 11; y++) {
@@ -512,11 +514,29 @@ type_next_file:
                 // 1文字ずつ出力
                 s[0] = p[x];
                 s[1] = 0;
-                putfonts8_asc_sht(sheet, cursor_x, cursor_y, COL8_FFFFFF, COL8_000000, s, 1);
-                cursor_x += 8;
-                if (cursor_x == 8 + 240) {
+                if (s[0] == CHAR_TAB) {               // タブ
+                  for (;;) {
+                    putfonts8_asc_sht(sheet, cursor_x, cursor_y, COL8_FFFFFF, COL8_000000, " ", 1);
+                    cursor_x += 8;
+                    if (cursor_x == 8 + 240) {
+                      cursor_x = 8;
+                      cursor_y = cons_newline(cursor_y, sheet);
+                    }
+                    if (((cursor_x - 8) & 0x1f) == 0)
+                      break;  // 32 で割り切れたら break
+                  }
+                } else if (s[0] == CHAR_LINE_LINE) {  // 改行
                   cursor_x = 8;
                   cursor_y = cons_newline(cursor_y, sheet);
+                } else if (s[0] == CHAR_RETURN) {     // 復帰
+                  // なにもしない
+                } else {                          // 普通の文字
+                  putfonts8_asc_sht(sheet, cursor_x, cursor_y, COL8_FFFFFF, COL8_000000, s, 1);
+                  cursor_x += 8;
+                  if (cursor_x == 8 + 240) {
+                    cursor_x = 8;
+                    cursor_y = cons_newline(cursor_y, sheet);
+                  }
                 }
               }
             } else {

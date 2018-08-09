@@ -28,6 +28,7 @@ haribote.img : ipl10.bin haribote.sys Makefile
 	mformat -f 1440 -C -B ipl10.bin -i haribote.img ::
 	mcopy haribote.sys -i haribote.img ::
 	mcopy ipl10.asm -i haribote.img ::
+	mcopy test.sh -i haribote.img ::
 
 asm :
 	make -r ipl10.bin
