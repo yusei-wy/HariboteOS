@@ -18,16 +18,20 @@ hankaku.c : makefont.c
 %.o: %.c
 	gcc -c -m32 -fno-pic -nostdlib -o $*.o $*.c
 
+hlt.hrb : hlt.asm Makefile
+	nasm hlt.asm -o hlt.hrb
+
 bootpack.hrb : $(OBJS_BOOTPACK) Makefile		# Cファイルをリンカスクリプトを用いてコンパイル
 	gcc -march=i486 -m32 -fno-pic -nostdlib -T har.ld bootpack.c $(OBJS_BOOTPACK) -o bootpack.hrb
 
 haribote.sys : asmhead.bin bootpack.hrb Makefile
 	cat asmhead.bin bootpack.hrb > haribote.sys
 
-haribote.img : ipl10.bin haribote.sys Makefile
+haribote.img : ipl10.bin haribote.sys hlt.hrb Makefile
 	mformat -f 1440 -C -B ipl10.bin -i haribote.img ::
 	mcopy haribote.sys -i haribote.img ::
 	mcopy ipl10.asm -i haribote.img ::
+	mcopy hlt.hrb -i haribote.img ::
 	mcopy test.sh -i haribote.img ::
 
 asm :
