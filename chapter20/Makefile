@@ -1,4 +1,4 @@
-OBJS_BOOTPACK = hankaku.o nasmfunc.o mysprintf.o mystrcmp.o graphic.o dsctbl.o int.o fifo.o keyboard.o mouse.o memory.o sheet.o timer.o mtask.o window.o console.o file.o
+OBJS_BOOTPACK = bootpack.o hankaku.o nasmfunc.o mysprintf.o mystrcmp.o graphic.o dsctbl.o int.o fifo.o keyboard.o mouse.o memory.o sheet.o timer.o mtask.o window.o console.o file.o
 
 default:
 	make img
@@ -21,11 +21,15 @@ hankaku.c : makefont.c
 hlt.hrb : hlt.asm Makefile
 	nasm hlt.asm -o hlt.hrb
 
-bootpack.hrb : $(OBJS_BOOTPACK) Makefile		# Cファイルをリンカスクリプトを用いてコンパイル
-	gcc -march=i486 -m32 -fno-pic -nostdlib -T har.ld bootpack.c $(OBJS_BOOTPACK) -o bootpack.hrb
+bootpack.bin : $(OBJS_BOOTPACK)
+	ld -Map bootpack.map -m elf_i386 -e HariMain -n -Tos.ld -static -o bootpack.bin $(OBJS_BOOTPACK)
+	hexdump -C bootpack.bin > bootpack.bin.dmp
 
-haribote.sys : asmhead.bin bootpack.hrb Makefile
-	cat asmhead.bin bootpack.hrb > haribote.sys
+# bootpack.hrb : $(OBJS_BOOTPACK) Makefile		# Cファイルをリンカスクリプトを用いてコンパイル
+# 	gcc -march=i486 -m32 -fno-pic -nostdlib $(OBJS_BOOTPACK) -o bootpack.hrb
+
+haribote.sys : asmhead.bin bootpack.bin Makefile
+	cat asmhead.bin bootpack.bin > haribote.sys
 
 haribote.img : ipl10.bin haribote.sys hlt.hrb Makefile
 	mformat -f 1440 -C -B ipl10.bin -i haribote.img ::
@@ -52,4 +56,4 @@ debug2 :
 	qemu-system-i386 -m 32 -localtime -vga std -fda haribote.img -gdb tcp::10000 -S &
 
 clean :
-	rm *.lst *.bin *.sys *.img *.hrb *.o
+	rm *.lst *.bin *.sys *.img *.hrb *.o *.map

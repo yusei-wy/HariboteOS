@@ -29,6 +29,8 @@ extern void asm_inthandler21(void);
 extern void asm_inthandler2c(void);
 extern unsigned int memtest_sub(unsigned int start, unsigned int end);
 extern void farjmp(int eip, int cs);
+extern void farcall(int eip, int cs);
+extern void asm_cons_putchar(void);
 
 // --- fifo.c ---
 struct FIFO32 {
