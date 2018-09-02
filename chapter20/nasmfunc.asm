@@ -198,11 +198,13 @@ farcall:    ; void farcall(int eip, int cs);
 
 asm_cons_putchar:
     STI
+    PUSHAD
     PUSH    1
     AND     EAX,0xff                ; AH や EAX の上位を0にして EAX に文字コードが入った状態にする
     PUSH    EAX
     PUSH    DWORD [0x0fec]          ; メモリの内容を読み込んでその値を PUSH する
     CALL    cons_putchar
     ADD     ESP,12                  ; スタックに積んだデータを捨てる
+    POPAD
     IRETD
 
