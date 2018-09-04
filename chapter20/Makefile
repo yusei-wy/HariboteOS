@@ -21,6 +21,9 @@ hankaku.c : makefont.c
 hello.hrb : hello.asm Makefile
 	nasm hello.asm -o hello.hrb
 
+hello2.hrb : hello2.asm Makefile
+	nasm hello2.asm -o hello2.hrb
+
 bootpack.bin : $(OBJS_BOOTPACK)
 	ld -Map bootpack.map -m elf_i386 -e HariMain -n -Tos.ld -static -o bootpack.bin $(OBJS_BOOTPACK)
 	hexdump -C bootpack.bin > bootpack.bin.dmp
@@ -31,11 +34,12 @@ bootpack.bin : $(OBJS_BOOTPACK)
 haribote.sys : asmhead.bin bootpack.bin Makefile
 	cat asmhead.bin bootpack.bin > haribote.sys
 
-haribote.img : ipl10.bin haribote.sys hello.hrb Makefile
+haribote.img : ipl10.bin haribote.sys hello.hrb hello2.hrb Makefile
 	mformat -f 1440 -C -B ipl10.bin -i haribote.img ::
 	mcopy haribote.sys -i haribote.img ::
 	mcopy ipl10.asm -i haribote.img ::
 	mcopy hello.hrb -i haribote.img ::
+	mcopy hello2.hrb -i haribote.img ::
 	mcopy test.sh -i haribote.img ::
 
 asm :

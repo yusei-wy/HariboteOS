@@ -11,13 +11,13 @@ section .text
     GLOBAL  load_tr
     GLOBAL  asm_inthandler20, asm_inthandler21
     GLOBAL  asm_inthandler2c
-    GLOBAL  asm_cons_putchar
     GLOBAL  memtest_sub
     GLOBAL  farjmp, farcall
     GLOBAL  inthandler20,
+    GLOBAL  asm_hrb_api
     EXTERN  inthandler20, inthandler21,
     EXTERN  inthandler2c
-    EXTERN  cons_putchar
+    EXTERN  hrb_api
 
 io_hlt:     ; void io_hlt(void);
     HLT
@@ -196,15 +196,12 @@ farcall:    ; void farcall(int eip, int cs);
     CALL    FAR [ESP+4]             ; eip, cs
     RET
 
-asm_cons_putchar:
+asm_hrb_api:
     STI
-    PUSHAD
-    PUSH    1
-    AND     EAX,0xff                ; AH や EAX の上位を0にして EAX に文字コードが入った状態にする
-    PUSH    EAX
-    PUSH    DWORD [0x0fec]          ; メモリの内容を読み込んでその値を PUSH する
-    CALL    cons_putchar
-    ADD     ESP,12                  ; スタックに積んだデータを捨てる
+    PUSHAD  ; 保存のため PUSH
+    PUSHAD  ; hrb_api に渡すための PUSH
+    CALL    hrb_api
+    ADD     ESP,32                  ; スタックに積んだデータを捨てる
     POPAD
     IRETD
 

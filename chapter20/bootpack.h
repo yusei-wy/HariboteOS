@@ -30,7 +30,7 @@ extern void asm_inthandler2c(void);
 extern unsigned int memtest_sub(unsigned int start, unsigned int end);
 extern void farjmp(int eip, int cs);
 extern void farcall(int eip, int cs);
-extern void asm_cons_putchar(void);
+extern void asm_hrb_api(void);
 
 // --- fifo.c ---
 struct FIFO32 {
@@ -229,6 +229,8 @@ struct CONSOLE {
 };
 void console_task(struct SHEET *sheet, int memtotal);
 void cons_putchar(struct CONSOLE *cons, int chr, char move);
+void cons_putstr0(struct CONSOLE *cons, char *s);
+void cons_putstr1(struct CONSOLE *cons, char *s, int l);
 void cons_newline(struct CONSOLE *cons);
 void cons_runcmd(char *cmdline, struct CONSOLE *cons, int *fat, int memtotal);
 void cmd_mem(struct CONSOLE *cons, int memman_total);
@@ -236,6 +238,7 @@ void cmd_cls(struct CONSOLE *cons);
 void cmd_dir(struct CONSOLE *cons);
 void cmd_type(struct CONSOLE *cons, int *fat, char *cmdline);
 int cmd_app(struct CONSOLE *cons, int *fat, char *cmdline);
+void hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax);
 
 // file.c
 struct FILEINFO {
