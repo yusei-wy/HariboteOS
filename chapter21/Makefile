@@ -28,18 +28,24 @@ bootpack.bin : $(OBJS_BOOTPACK)
 	ld -Map bootpack.map -m elf_i386 -e HariMain -n -Tos.ld -static -o bootpack.bin $(OBJS_BOOTPACK)
 	hexdump -C bootpack.bin > bootpack.bin.dmp
 
-# bootpack.hrb : $(OBJS_BOOTPACK) Makefile		# Cファイルをリンカスクリプトを用いてコンパイル
-# 	gcc -march=i486 -m32 -fno-pic -nostdlib $(OBJS_BOOTPACK) -o bootpack.hrb
+a.hrb : a.o Makefile
+	nasm -g -f elf a_nasm.asm -o a_nasm.o
+	ld -m elf_i386 -e HariMain -n -Tapi.ld -static -o a.hrb a.o a_nasm.o
+
+hello3.hrb : hello3.o a_nasm.o Makefile
+	ld -m elf_i386 -e HariMain -n -Tapi.ld -static -o hello3.hrb hello3.o a_nasm.o
 
 haribote.sys : asmhead.bin bootpack.bin Makefile
 	cat asmhead.bin bootpack.bin > haribote.sys
 
-haribote.img : ipl10.bin haribote.sys hello.hrb hello2.hrb Makefile
+haribote.img : ipl10.bin haribote.sys hello.hrb hello2.hrb a.hrb hello3.hrb Makefile
 	mformat -f 1440 -C -B ipl10.bin -i haribote.img ::
 	mcopy haribote.sys -i haribote.img ::
 	mcopy ipl10.asm -i haribote.img ::
 	mcopy hello.hrb -i haribote.img ::
 	mcopy hello2.hrb -i haribote.img ::
+	mcopy a.hrb -i haribote.img ::
+	mcopy hello3.hrb -i haribote.img ::
 	mcopy test.sh -i haribote.img ::
 
 asm :
